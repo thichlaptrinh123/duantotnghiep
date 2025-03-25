@@ -7,6 +7,16 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 
 require('./models/m_category');
+require('./models/m_blog');
+require('./models/m_comment');
+require('./models/m_order');
+require('./models/m_order_detail');
+require('./models/m_payment');
+require('./models/m_product');
+require('./models/m_product_variant');
+require('./models/m_user');
+require('./models/m_voucher');
+require('./models/m_wishlist');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -23,10 +33,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var cors = require('cors');
+var corsOptionsDelegate = function (req, callback) {
+var corsOptions= { origin: true };
+ callback(null, corsOptions);
+}
+
+
+
 mongoose.connect('mongodb://localhost:27017/duantotnghiep')
   .then(()=> console.log('connected to mongodb'))
   .catch(err => console.error('fail to connect to mongodb' + err)) ;
 
+
+app.use(cors(corsOptionsDelegate));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
