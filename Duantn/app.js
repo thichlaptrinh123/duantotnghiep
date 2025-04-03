@@ -20,6 +20,8 @@ require('./models/m_wishlist');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var categoriesRouter = require('./routes/category');
+var productsRouter = require('./routes/product');
 
 var app = express();
 
@@ -49,6 +51,8 @@ mongoose.connect('mongodb://localhost:27017/duantotnghiep')
 app.use(cors(corsOptionsDelegate));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/category', categoriesRouter);
+app.use('/product', productsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
