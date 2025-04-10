@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELEGANCE - Thời Trang Cao Cấp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #222;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 0 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #444;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #e63946;
+        }
+
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url('/api/placeholder/1200/800') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s 0.3s forwards;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #e63946;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s 0.6s forwards;
+        }
+
+        .btn:hover {
+            background-color: #c1121f;
+            transform: translateY(-3px);
+        }
+
+        .section {
+            padding: 100px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.2rem;
+            color: #222;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 3px;
+            background-color: #e63946;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .product-card.visible {
+            animation: fadeInUp 0.8s forwards;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #e63946;
+            margin-bottom: 15px;
+        }
+
+        .product-btn {
+            display: block;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .product-btn:hover {
+            background-color: #e63946;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .category {
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .category.visible {
+            animation: fadeInUp 0.8s forwards;
+        }
+
+        .category-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .category:hover .category-img {
+            transform: scale(1.1);
+        }
+
+        .category-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 20px;
+            color: white;
+            transition: padding 0.3s;
+        }
+
+        .category:hover .category-overlay {
+            padding-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .testimonials {
+            background-color: #f1f3f5;
+            padding: 100px 5%;
+        }
+
+        .testimonial-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .testimonial {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .testimonial.visible {
+            animation: fadeInUp 0.8s forwards;
+        }
+
+        .testimonial::before {
+            content: '"';
+            font-size: 4rem;
+            color: #e63946;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            opacity: 0.2;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .author-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .author-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .author-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .newsletter {
+            background-color: #333;
+            color: white;
+            padding: 80px 5%;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .newsletter.visible {
+            animation: fadeInUp 0.8s forwards;
+        }
+
+        .newsletter h2 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .newsletter p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            color: #ddd;
+        }
+
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+
+        .newsletter-btn {
+            background-color: #e63946;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .newsletter-btn:hover {
+            background-color: #c1121f;
+        }
+
+        footer {
+            background-color: #222;
+            color: #ddd;
+            padding: 50px 5% 20px;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-col {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 30px;
+        }
+
+        .footer-col h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .footer-col p {
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #e63946;
+        }
+
+        .social-links {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: #444;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: #e63946;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            margin-top: 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section {
+                padding: 70px 5%;
+            }
+
+            .products {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+
+            .categories {
+                justify-content: center;
+            }
+
+            .category {
+                min-width: 220px;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-input {
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+
+            .newsletter-btn {
+                border-radius: 4px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">ELEGANCE</div>
+            <ul class="nav-links">
+                <li><a href="#home">Trang chủ</a></li>
+                <li><a href="#products">Sản phẩm</a></li>
+                <li><a href="#categories">Danh mục</a></li>
+                <li><a href="#testimonials">Đánh giá</a></li>
+                <li><a href="#contact">Liên hệ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Thời Trang Cao Cấp Cho Phong Cách Của Bạn</h1>
+            <p>Khám phá bộ sưu tập mới nhất với những thiết kế độc đáo và chất lượng hàng đầu</p>
+            <a href="#products" class="btn">KHÁM PHÁ NGAY</a>
+        </div>
+    </section>
+
+    <section id="products" class="section">
+        <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
+        <div class="products">
+            <div class="product-card">
+                <img src="/api/placeholder/400/400" alt="Áo sơ mi nam" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-name">Áo Sơ Mi Nam Slim Fit</h3>
+                    <p class="product-price">650.000₫</p>
+                    <a href="#" class="product-btn">Thêm vào giỏ hàng</a>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/400/400" alt="Áo khoác nữ" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-name">Áo Khoác Nữ Dáng Dài</h3>
+                    <p class="product-price">1.250.000₫</p>
+                    <a href="#" class="product-btn">Thêm vào giỏ hàng</a>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/400/400" alt="Quần jeans nam" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-name">Quần Jeans Nam Rách Gối</h3>
+                    <p class="product-price">850.000₫</p>
+                    <a href="#" class="product-btn">Thêm vào giỏ hàng</a>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/400/400" alt="Đầm nữ" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-name">Đầm Suông Nữ Công Sở</h3>
+                    <p class="product-price">750.000₫</p>
+                    <a href="#" class="product-btn">Thêm vào giỏ hàng</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="categories" class="section">
+        <h2 class="section-title">Danh Mục Sản Phẩm</h2>
+        <div class="categories">
+            <div class="category">
+                <img src="/api/placeholder/400/400" alt="Thời trang nam" class="category-img">
+                <div class="category-overlay">
+                    <h3 class="category-title">Thời Trang Nam</h3>
+                    <a href="#" class="btn">Xem Ngay</a>
+                </div>
+            </div>
+            <div class="category">
+                <img src="/api/placeholder/400/400" alt="Thời trang nữ" class="category-img">
+                <div class="category-overlay">
+                    <h3 class="category-title">Thời Trang Nữ</h3>
+                    <a href="#" class="btn">Xem Ngay</a>
+                </div>
+            </div>
+            <div class="category">
+                <img src="/api/placeholder/400/400" alt="Phụ kiện" class="category-img">
+                <div class="category-overlay">
+                    <h3 class="category-title">Phụ Kiện</h3>
+                    <a href="#" class="btn">Xem Ngay</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials">
+        <h2 class="section-title">Khách Hàng Nói Gì Về Chúng Tôi</h2>
+        <div class="testimonial-container">
+            <div class="testimonial">
+                <p class="testimonial-text">Tôi rất hài lòng với chất lượng sản phẩm và dịch vụ tại Elegance. Quần áo có kiểu dáng đẹp và chất lượng vải rất tốt. Nhân viên nhiệt tình và thân thiện.</p>
+                <div class="testimonial-author">
+                    <img src="/api/placeholder/100/100" alt="Nguyễn Thị Lan" class="author-img">
+                    <div class="author-info">
+                        <h4>Nguyễn Thị Lan</h4>
+                        <p>Khách hàng thân thiết</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">Elegance luôn mang đến những mẫu thiết kế mới nhất và phù hợp với xu hướng. Tôi thường xuyên mua sắm tại đây và chưa bao giờ thất vọng.</p>
+                <div class="testimonial-author">
+                    <img src="/api/placeholder/100/100" alt="Trần Văn Nam" class="author-img">
+                    <div class="author-info">
+                        <h4>Trần Văn Nam</h4>
+                        <p>Blogger thời trang</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="newsletter">
+        <h2>Đăng Ký Nhận Thông Tin</h2>
+        <p>Đăng ký để nhận thông tin về sản phẩm mới, khuyến mãi và các sự kiện đặc biệt của chúng tôi.</p>
+        <form class="newsletter-form">
+            <input type="email" placeholder="Nhập email của bạn" class="newsletter-input" required>
+            <button type="submit" class="newsletter-btn">Đăng Ký</button>
+        </form>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>ELEGANCE</h3>
+                <p>Thời trang cao cấp cho phong cách của bạn với chất lượng hàng đầu và dịch vụ chuyên nghiệp.</p>
+                <div class="social-links">
+                    <a href="#">F</a>
+                    <a href="#">I</a>
+                    <a href="#">Y</a>
+                    <a href="#">T</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Liên Kết Nhanh</h3>
+                <ul class="footer-links">
+                    <li><a href="#home">Trang chủ</a></li>
+                    <li><a href="#products">Sản phẩm</a></li>
+                    <li><a href="#categories">Danh mục</a></li>
+                    <li><a href="#testimonials">Đánh giá</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Liên Hệ</h3>
+                <p>123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh</p>
+                <p>Email: info@elegance.com</p>
+                <p>Điện thoại: 1900 1234 567</p>
+                <p>Giờ làm việc: 8:00 - 22:00, T2 - CN</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 ELEGANCE. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Animation Function
+        function checkScroll() {
+            const elements = document.querySelectorAll('.product-card, .category, .testimonial, .newsletter');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.2;
+                
+                if (elementPosition < screenPosition) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Check elements on load
+        window.addEventListener('load', checkScroll);
+        
+        // Check elements on scroll
+        window.addEventListener('scroll', checkScroll);
+    </script>
+</body>
+</html>
