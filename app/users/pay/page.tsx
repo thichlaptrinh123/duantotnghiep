@@ -1,12 +1,26 @@
 // app/checkout/page.tsx
 'use client';
-
 import React from 'react';
 import '../../user_css/pay.css'; // Nhúng file CSS nếu dùng file riêng
-
+import MaxWidthWrapper from '@/components/shared/MaxWidthWrapper'
+import Image from 'next/image';
 export default function CheckoutPage() {
   return (
+     <MaxWidthWrapper>
+      <>
+     <div className="logo-pay">
+      <Image
+                src="/images/logo.png"
+                alt="Aura Store"
+                width={160}
+                height={60}
+                className="object-contain"
+                priority
+              />
+    </div>
+
     <div className="container-payment">
+     
       {/* Cột trái: Form thông tin và phương thức */}
       <div className="left-column">
         <div className="container">
@@ -155,6 +169,12 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+           
     </div>
+    
+            </>
+    </MaxWidthWrapper>
+    
+
   );
 }
