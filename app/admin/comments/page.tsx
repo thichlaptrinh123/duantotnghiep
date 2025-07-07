@@ -42,7 +42,7 @@ export default function CommentsPage() {
           id: item._id,
           product: item.id_product?.name || "(Không rõ sản phẩm)",
           image: item.id_product?.images?.[0] || "",
-          user: item.id_user?.name || "Ẩn danh",
+          user: item.id_user?.username || "Ẩn danh",
           content: item.content || "",
           stars: item.stars || 5,
           createdAt: item.createdAt,

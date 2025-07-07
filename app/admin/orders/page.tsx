@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import SearchInput from "../components/shared/search-input";
 import StatusFilter from "../components/shared/status-filter";
 import Pagination from "../components/shared/pagination";
@@ -12,41 +12,6 @@ import PaymentMethodFilter from "../components/order/payment-method-filter";
 import OrderStatusOverview from "../components/order/order-status-over-view";
 import TimeFilter from "../components/order/time-filter";
 
-const MOCK_ORDERS = [
-  {
-    id: "ORD001",
-    customerName: "Nguyễn Văn A",
-    phone: "0123456789",
-    createdAt: "2025-06-16",
-    status: "pending",
-    total: 1290000,
-    paymentMethod: "COD",
-    shippingFee: 30000,
-    discount: 100000,
-    address: "4/ Hà Thị Khiêm, Q.12, TP.HCM",
-    products: [
-      { name: "Áo thun trắng", color: "Trắng", size: "M", quantity: 2, price: 200000 },
-      { name: "Quần jean", color: "Xanh", size: "32", quantity: 1, price: 690000 },
-    ],
-  },
-  {
-    id: "ORD002",
-    customerName: "Trần Thị B",
-    phone: "0987654321",
-    createdAt: "2025-06-15",
-    status: "completed",
-    total: 890000,
-    paymentMethod: "BANK",
-    shippingFee: 25000,
-    discount: 50000,
-    address: "123 Nguyễn Trãi, Q.5, TP.HCM",
-    products: [
-      { name: "Váy đen xòe", color: "Đen", size: "L", quantity: 1, price: 450000 },
-      { name: "Áo sơ mi caro", color: "Đỏ", size: "M", quantity: 1, price: 490000 },
-    ],
-  },
-];
-
 const ITEMS_PER_PAGE = 5;
 
 export default function OrdersPage() {
@@ -55,9 +20,58 @@ export default function OrdersPage() {
   const [paymentMethod, setPaymentMethod] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const [orders, setOrders] = useState(MOCK_ORDERS);
   const [timeFilter, setTimeFilter] = useState<"all" | "today" | "7days" | "30days">("all");
+  const [orders, setOrders] = useState<any[]>([]);
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch("/api/order");
+        const data = await res.json();
+  
+        if (!Array.isArray(data)) {
+          console.error("API không trả về mảng:", data);
+          return;
+        }
+  
+        const formatted = data.map((order: any) => {
+          const products = order.products.map((item: any) => ({
+            name: item.id_product_variant?.id_product?.name || "Sản phẩm không xác định",
+            color: item.id_product_variant?.color || "N/A",
+            size: item.id_product_variant?.size || "N/A",
+            quantity: item.quantity,
+            price: item.price,
+          }));
+  
+          return {
+            // id: order._id.slice(-6).toUpperCase(), // Ví dụ tạo mã đơn hàng từ ID
+            customerName: order.id_user?.username || "Ẩn danh", // nếu chưa có user, dùng mặc định
+            phone: order.id_user?.phone || "Không có",
+            createdAt: order.createdAt,
+            status: order.status,
+            total:
+              products.reduce((sum: number, p: any) => sum + p.price * p.quantity, 0) +
+              order.shipping_fee -
+              order.discount,
+            paymentMethod: order.paymentMethod || "COD",
+            shippingFee: order.shipping_fee,
+            discount: order.discount,
+            address: order.address || "Chưa có địa chỉ",
+            products,
+          };
+        });
+  
+        setOrders(formatted);
+      } catch (err) {
+        console.error("Lỗi khi fetch đơn hàng:", err);
+      }
+    };
+  
+    fetchOrders();
+  }, []);
+  
+  
+  
   const handleUpdateStatus = (orderId: string, newStatus: string) => {
     setOrders((prev) =>
       prev.map((order) =>

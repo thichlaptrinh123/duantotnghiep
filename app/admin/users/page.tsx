@@ -6,79 +6,94 @@ import Pagination from "../components/shared/pagination";
 import StatusFilter from "../components/shared/status-filter";
 import UserModal from "../components/user/user-modal";
 import clsx from "clsx";
+import { User } from "../components/user/user-types";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+import { convertRoleToDb, roleMap } from "@/app/admin/components/user/role-utils";
+
 
 export default function UserPage() {
+  const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      email: "a@example.com",
-      phone: "0123456789",
-      address: "Hà Nội",
-      role: "super-admin",
-      status: "active",
-      password: "",
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      email: "b@example.com",
-      phone: "0987654321",
-      address: "TP.HCM",
-      role: "customer",
-      status: "inactive",
-      password: "",
-    },
-  ]);
-
-  const [orders] = useState([
-    { id: 1, userId: 1, status: "completed", total: 500000, createdAt: "2024-06-01" },
-    { id: 2, userId: 1, status: "completed", total: 300000, createdAt: "2024-06-03" },
-    { id: 3, userId: 2, status: "pending", total: 150000, createdAt: "2024-06-04" },
-  ]);
-
-  const handleSave = (user) => {
-    if (user.id) {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, ...user } : u))
-      );
-    } else {
-      const newUser = { ...user, id: Date.now() };
-      setUsers((prev) => [...prev, newUser]);
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/user");
+      const data = await res.json();
+      const mapped = data.map((user: any) => ({ ...user, id: user._id }));
+      setUsers(mapped);
+    } catch (error) {
+      console.error("Lỗi khi fetch users:", error);
+      toast.error("Không thể tải danh sách người dùng");
     }
-    setShowModal(false);
-    setSelectedUser(null);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleSave = async (user: any) => {
+    try {
+      const url = user.id ? `/api/user/${user.id}` : "/api/user";
+      const method = user.id ? "PUT" : "POST";
+  
+      // 🔍 Gỡ bug ở đây
+      console.log("GỬI ROLE:", user.role);
+      console.log("ROLE ĐÃ CHUYỂN:", convertRoleToDb(user.role));
+  
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...user, role: convertRoleToDb(user.role) }),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        toast.error(result.message || "Lỗi không xác định");
+        return;
+      }
+
+      await fetchUsers();
+      toast.success(user.id ? "Cập nhật thành công" : "Thêm người dùng thành công");
+    } catch (error) {
+      toast.error("Lỗi khi lưu người dùng");
+    }
   };
 
   const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
-    setCurrentPage(1); // Reset về trang đầu khi lọc hoặc tìm kiếm
+    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm / lọc
   }, [search, status]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
+      const searchLower = search.toLowerCase();
+  
       const matchSearch =
-        user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase());
-
+        user.name?.toLowerCase().includes(searchLower) ||
+        user.phone?.toLowerCase().includes(searchLower) ||
+        user.email?.toLowerCase().includes(searchLower) ||
+        user.address?.toLowerCase().includes(searchLower) ||
+        user.role?.toLowerCase().includes(searchLower);
+  
       const matchStatus = status === "all" || user.status === status;
+  
       return matchSearch && matchStatus;
     });
   }, [users, search, status]);
-
+  
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
 
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredUsers.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredUsers, currentPage]);
+
 
   return (
         <section className="p-4 space-y-6">
@@ -118,43 +133,50 @@ export default function UserPage() {
           </div>
       
         {/* 📋 Bảng danh sách */}
-<div className="bg-white rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-4 space-y-4">
-<h1 className="text-lg font-semibold mb-4">Danh sách tài khoản</h1>
-  {/* Tiêu đề bảng */}
-  <div className="hidden lg:grid grid-cols-9 gap-4 px-2 py-3 bg-[#F9F9F9] rounded-md font-semibold text-gray-800 text-sm">
-  <div>STT</div>
-  <div>Họ tên</div>
-  <div>Email</div>
-  <div>Điện thoại</div>
-  <div>Địa chỉ</div>
-  <div>Vai trò</div>
-  <div>Đơn hàng</div> 
-  <div>Trạng thái</div>
-  <div className="text-center">Thao tác</div>
-</div>
+        <div className="bg-white rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-4 space-y-4">
+  <h1 className="text-lg font-semibold mb-4">Danh sách tài khoản</h1>
 
+  {/* Header */}
+  <div className="hidden lg:grid grid-cols-[40px_1.5fr_1.8fr_1.8fr_1fr_1fr_1fr_80px] gap-4 px-2 py-3 bg-[#F9F9F9] rounded-md font-semibold text-gray-800 text-sm">
+    <div>STT</div>
+    <div>Họ tên & SĐT</div>
+    <div>Email</div>
+    <div>Địa chỉ</div>
+    <div>Vai trò</div>
+    <div>Đơn hàng</div>
+    <div>Trạng thái</div>
+    <div className="text-center">Thao tác</div>
+  </div>
 
-{paginatedUsers.map((user, index) => {
-  const completedOrders = orders.filter(
-    (order) => order.userId === user.id && order.status === "completed"
-  ).length;
+  {/* Rows */}
+  {paginatedUsers.map((user, index) => {
+    const stt = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
 
-  return (
-    <div
-      key={user.id}
-      className="grid grid-cols-9 gap-4 px-2 py-3 items-center border-b border-gray-200"
-    >
-      {/* STT */}
-      <div className="text-sm text-gray-700">{index + 1}</div>
+    return (
+      <div
+        key={user.id ?? index}
+        className="grid grid-cols-[40px_1.5fr_1.8fr_1.8fr_1fr_1fr_1fr_80px] gap-4 px-2 py-3 items-center border-b border-gray-200 text-sm"
+      >
+        {/* STT */}
+        <div className="text-gray-700">{stt}</div>
 
-        <div className="text-sm text-gray-700">{user.name}</div>
-        <div className="text-sm text-gray-700">{user.email}</div>
-        <div className="text-sm text-gray-700">{user.phone}</div>
-        <div className="text-sm text-gray-700">{user.address}</div>
+        {/* Họ tên & Điện thoại */}
+        <div className="flex flex-col">
+          <span className="font-medium">{user.name}</span>
+          <span className="text-xs text-gray-500">{user.phone}</span>
+        </div>
+
+        {/* Email */}
+        <div className="break-words whitespace-normal text-gray-700">{user.email}</div>
+
+        {/* Địa chỉ */}
+        <div className="break-words whitespace-normal text-gray-700">{user.address}</div>
+
+        {/* Vai trò */}
         <div>
           <span
             className={clsx(
-              "px-3 py-1 rounded-full text-xs font-medium capitalize text-center",
+              "px-2 py-1 rounded-full text-xs font-medium capitalize",
               {
                 "bg-gray-100 text-gray-700": user.role === "customer",
                 "bg-blue-100 text-blue-700": user.role === "super-admin",
@@ -164,32 +186,28 @@ export default function UserPage() {
               }
             )}
           >
-            {
-              {
-                "super-admin": "Admin tổng",
-                "product-manager": "QL sản phẩm",
-                "order-manager": "QL đơn hàng",
-                "post-manager": "QL bài viết",
-                "customer": "Khách hàng",
-              }[user.role] ?? user.role
-            }
+            {roleMap[user.role as keyof typeof roleMap]}
           </span>
         </div>
 
-        {/* ✅ Cột số đơn hàng */}
-        <div className="text-sm text-gray-700 px-6">{completedOrders}</div>
-        <div>
+        {/* Đơn hàng (chưa xử lý) */}
+        <div className="text-gray-500 italic text-center">Chưa xử lý</div>
+
+        {/* Trạng thái */}
+        <div className="text-center">
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold text-center ${
+            className={clsx(
+              "px-3 py-1 rounded-full text-xs font-semibold",
               user.status === "active"
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-600"
-            }`}
+            )}
           >
             {user.status === "active" ? "Hoạt động" : "Tạm ngưng"}
           </span>
         </div>
 
+        {/* Thao tác */}
         <div className="text-center">
           <button
             className="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-2 rounded-md transition inline-flex items-center justify-center"
@@ -197,6 +215,7 @@ export default function UserPage() {
               setSelectedUser(user);
               setShowModal(true);
             }}
+            title="Chỉnh sửa"
           >
             <i className="bx bx-pencil text-lg" />
           </button>
@@ -205,6 +224,7 @@ export default function UserPage() {
     );
   })}
 </div>
+
 
 
            {/* Phân trang */}

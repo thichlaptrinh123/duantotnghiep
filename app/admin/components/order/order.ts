@@ -1,4 +1,4 @@
-// app/admin/constants/order.ts
+// app/admin/components/order/order.ts
 
 export const ORDER_STATUS: Record<string, string> = {
     pending: "Chờ xác nhận",
