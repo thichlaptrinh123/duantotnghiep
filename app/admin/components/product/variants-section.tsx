@@ -168,7 +168,7 @@ export default function VariantsSection({
           onClick={() => setShowBulkForm(!showBulkForm)}
           className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
         >
-          + Tạo nhiều biến thể
+          + Thêm biến thể
         </button>
         
       </div>

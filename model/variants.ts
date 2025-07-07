@@ -1,3 +1,4 @@
+// File: model/variants.ts
 import mongoose from "mongoose";
 
 const VariantSchema = new mongoose.Schema(
