@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  const hideHeader = pathname === "/users/pay";
+  const hideHeader = pathname === "/user/pay";
 
   return (
     <html lang="en">
