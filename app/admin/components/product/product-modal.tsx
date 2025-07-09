@@ -263,13 +263,6 @@ const handleSubmit = async () => {
     setIsSubmitting(false);
     return;
   }
-  // const invalidVariant = form.variants?.find(
-  //   (v) =>
-  //     !v.size ||
-  //     !v.color ||
-  //     isNaN(Number(v.price)) ||
-  //     isNaN(Number(v.stock_quantity))
-  // );
 
 
   try {
@@ -421,9 +414,21 @@ const handleSubmit = async () => {
     }
 
     if (!res.ok) {
-      const text = await res.text();
-      console.error("❌ Gửi sản phẩm thất bại:", text);
-      toast.error("❌ Gửi sản phẩm thất bại");
+      try {
+        const data = await res.json();
+    
+        // ✅ Kiểm tra lỗi tên trùng
+        if (data.message?.includes("Tên sản phẩm đã tồn tại")) {
+          toast.warn("Tên sản phẩm đã tồn tại, vui lòng chọn tên khác");
+        } else {
+          toast.error("Gửi sản phẩm thất bại");
+        }
+    
+      } catch (e) {
+        toast.error("Gửi sản phẩm thất bại");
+      }
+    
+      setIsSubmitting(false);
       return;
     }
 

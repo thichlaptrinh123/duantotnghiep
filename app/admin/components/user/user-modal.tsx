@@ -1,24 +1,14 @@
+// app/admin/components/user/user-modal.tsx
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { User, UserModalProps } from "./user-types"; 
 
-interface User {
-  id?: string;
-  name: string;
-  password: string;
-  phone: string;
-  email: string;
-  role: "super-admin" | "product-manager" | "order-manager" | "post-manager" | "customer";
-  status: "active" | "inactive";
-  address: string;
-}
 
-interface UserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (user: User) => void;
-  initialData?: User | null;
-}
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+
 
 export default function UserModal({
   isOpen,
@@ -41,7 +31,18 @@ export default function UserModal({
 
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        id: initialData?.id, // ✅ thêm dòng này
+        name: initialData?.name || "",
+        password: "", // không truyền lại password cũ
+        phone: initialData?.phone || "",
+        email: initialData?.email || "",
+        role: initialData?.role || "customer",
+        status: initialData?.status || "active",
+        address: initialData?.address || "",
+      });
+      
+
     } else {
       setForm({
         name: "",
@@ -53,10 +54,12 @@ export default function UserModal({
         address: "",
       });
     }
+  
     setTimeout(() => {
       nameRef.current?.focus();
     }, 100);
   }, [initialData]);
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -64,17 +67,46 @@ export default function UserModal({
   };
 
   const handleSubmit = () => {
-    onSave(form);
-    onClose();
+    // Kiểm tra họ tên và số điện thoại không rỗng
+    if (!form.name.trim() || !form.phone.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Thiếu thông tin",
+        text: "Vui lòng nhập đầy đủ họ tên và số điện thoại!",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
   
-    // ✅ Reset form nếu đang ở chế độ thêm mới (không có initialData)
+    // ✅ Kiểm tra số điện thoại phải có đúng 10 chữ số
+    if (!/^\d{10}$/.test(form.phone)) {
+      toast.warning("Số điện thoại phải gồm đúng 10 chữ số!");
+      return;
+    }
+  
+    // ✅ Kiểm tra định dạng email phải là @gmail.com nếu có nhập
+    if (form.email && !/^[\w-.]+@gmail\.com$/.test(form.email)) {
+      toast.warning("Email phải có định dạng @gmail.com!");
+      return;
+    }
+  
+    // ✅ Nếu đang thêm mới mà không có mật khẩu
+    if (!initialData && !form.password.trim()) {
+      toast.warning("Vui lòng nhập mật khẩu!");
+      return;
+    }
+  
+    onSave(form); // Gửi dữ liệu ra ngoài
+  
+    // Đóng modal và reset nếu là tạo mới
+    onClose();
     if (!initialData) {
       setForm({
         name: "",
         password: "",
         phone: "",
         email: "",
-        role: "customer", // bạn có thể chọn mặc định vai trò nào cũng được
+        role: "customer",
         status: "active",
         address: "",
       });
@@ -121,12 +153,18 @@ export default function UserModal({
             id="password"
             name="password"
             type="password"
-            value={form.password}
+            value={form.password || ""}
             onChange={handleChange}
             placeholder="Nhập mật khẩu"
             className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#960130]"
           />
+          {initialData && (
+            <small className="text-xs text-gray-500 block mt-1">
+              Chỉ nhập khi bạn muốn đổi mật khẩu
+            </small>
+          )}
         </div>
+
   
         {/* Số điện thoại */}
         <div>
@@ -165,36 +203,38 @@ export default function UserModal({
             Vai trò
           </label>
           <select
-            id="role"
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#960130]"
-          >
-            <option value="super-admin">Admin tổng</option>
-            <option value="product-manager">Quản lý sản phẩm</option>
-            <option value="order-manager">Quản lý đơn hàng</option>
-            <option value="post-manager">Quản lý bài viết</option>
-            <option value="customer">Khách hàng</option>
-          </select>
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded-md w-full"
+        >
+          <option value="admin">Admin</option>
+          <option value="product-manager">Quản lý sản phẩm</option>
+          <option value="order-manager">Quản lý đơn hàng</option>
+          <option value="post-manager">Quản lý bài viết</option>
+          <option value="customer">Khách hàng</option>
+        </select>
         </div>
   
         {/* Trạng thái */}
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium mb-1">
-            Trạng thái
-          </label>
-          <select
-            id="status"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#960130]"
-          >
-            <option value="active">Đang hoạt động</option>
-            <option value="inactive">Ngưng hoạt động</option>
-          </select>
-        </div>
+        {initialData && (
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium mb-1">
+              Trạng thái
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#960130]"
+            >
+              <option value="active">Đang hoạt động</option>
+              <option value="inactive">Ngưng hoạt động</option>
+            </select>
+          </div>
+        )}
+
   
         {/* Địa chỉ (chiếm cả hàng) */}
         <div className="sm:col-span-2">
