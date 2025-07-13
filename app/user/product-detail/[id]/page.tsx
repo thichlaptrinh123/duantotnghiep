@@ -53,7 +53,7 @@ const colors = Array.from(
   new Set(product?.variants?.map(v => v.color))
 ).map((color) => ({
   name: color,
-  value: color.toLowerCase() // Nếu bạn dùng màu hex thì nên giữ nguyên
+  value: color.toLowerCase() 
 }));
 
 const sizes = Array.from(new Set(product?.variants?.map(v => v.size)));
